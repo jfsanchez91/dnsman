@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: net.jfsanchez.dnsman
+testFramework: junit
+sourceLanguage: java
+buildTool: gradle_kotlin
+features: [app-name, cache-caffeine, graalvm, gradle, http-client-test, java, java-application, junit, logback, lombok, micronaut-aot, micronaut-build, mockito, netty-server, openapi, problem-json, reactor, reactor-http-client, readme, retry, security-annotations, security-jwt, serialization-jackson, shade, swagger-ui, tracing-opentelemetry-annotations, tracing-opentelemetry-exporter-jaeger, tracing-opentelemetry-http, tracing-opentelemetry-jaeger, validation, yaml, yaml-build]
