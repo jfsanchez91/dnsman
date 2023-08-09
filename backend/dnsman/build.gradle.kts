@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.micronaut.application)
     alias(libs.plugins.micronaut.aot)
-    alias(libs.plugins.shadow)
+//    alias(libs.plugins.shadow)
 }
 
 version = "0.1"
@@ -38,9 +38,11 @@ subprojects {
 }
 
 dependencies {
+    annotationProcessor("io.micronaut:micronaut-inject-java")
+    compileOnly("io.micronaut:micronaut-inject")
     compileOnly("org.graalvm.nativeimage:svm")
     runtimeOnly("org.yaml:snakeyaml")
-
+    implementation(project(":application"))
     implementation(project(":infra-web"))
 }
 

@@ -14,7 +14,7 @@ dependencies {
     annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
     implementation("io.micronaut:micronaut-retry")
     implementation("io.micronaut.cache:micronaut-cache-caffeine")
-    implementation("io.micronaut.problem:micronaut-problem-json")
+//    implementation("io.micronaut.problem:micronaut-problem-json")
     implementation("io.micronaut.reactor:micronaut-reactor")
     testImplementation("io.projectreactor:reactor-test")
     implementation("io.micronaut.reactor:micronaut-reactor-http-client")

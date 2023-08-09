@@ -18,6 +18,6 @@ micronaut:
           secret:
             generator:
               secret: ${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}
-otel:
-  traces:
-    exporter: jaeger
+#otel:
+#  traces:
+#    exporter: jaeger
