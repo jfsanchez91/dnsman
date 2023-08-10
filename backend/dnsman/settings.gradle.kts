@@ -7,3 +7,4 @@ dependencyResolutionManagement {
 include("domain")
 include("application")
 include("infra-web")
+include("infra-persistence")

@@ -2,10 +2,7 @@ package net.jfsanchez.dnsman.application.service;
 
 import net.jfsanchez.dnsman.application.error.UnauthorizedException;
 import net.jfsanchez.dnsman.application.port.output.AuthorizationPort;
-import net.jfsanchez.dnsman.application.port.output.GetDomainPort;
-import net.jfsanchez.dnsman.application.port.output.GetDomainsPort;
-import net.jfsanchez.dnsman.application.port.output.PersistDomainPort;
-import net.jfsanchez.dnsman.application.port.output.RemoveDomainPort;
+import net.jfsanchez.dnsman.application.port.output.DomainPort;
 import net.jfsanchez.dnsman.application.util.MockitoUtil;
 import net.jfsanchez.dnsman.domain.entity.Domain;
 import net.jfsanchez.dnsman.domain.error.DomainAlreadyExistsException;
@@ -20,12 +17,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 class DomainServiceTest {
-  private final GetDomainPort getDomainPort = Mockito.mock(GetDomainPort.class);
-  private final GetDomainsPort getDomainsPort = Mockito.mock(GetDomainsPort.class);
-  private final PersistDomainPort persistDomainPort = Mockito.mock(PersistDomainPort.class);
-  private final RemoveDomainPort removeDomainPort = Mockito.mock(RemoveDomainPort.class);
+  private final DomainPort domainPort = Mockito.mock(DomainPort.class);
   private final AuthorizationPort authorizationPort = Mockito.mock(AuthorizationPort.class);
-  private final DomainService service = new DomainService(getDomainPort, getDomainsPort, persistDomainPort, removeDomainPort, authorizationPort);
+  private final DomainService service = new DomainService(domainPort, authorizationPort);
 
   @BeforeEach
   void setup() {
@@ -44,7 +38,7 @@ class DomainServiceTest {
       StepVerifier.create(service.registerDomain(domainName))
           .verifyError(UnauthorizedException.class);
 
-      Mockito.verify(persistDomainPort, Mockito.never()).persistDomain(Mockito.any());
+      Mockito.verify(domainPort, Mockito.never()).persistDomain(Mockito.any());
     }
 
     @Test
@@ -52,12 +46,12 @@ class DomainServiceTest {
       final var domainName = DomainName.of("example.com");
 
       Mockito.when(authorizationPort.isAdminUser()).thenReturn(Mono.just(true));
-      Mockito.when(persistDomainPort.persistDomain(Mockito.any())).thenReturn(Mono.error(new DomainAlreadyExistsException(domainName)));
+      Mockito.when(domainPort.persistDomain(Mockito.any())).thenReturn(Mono.error(new DomainAlreadyExistsException(domainName)));
 
       StepVerifier.create(service.registerDomain(domainName))
           .verifyError(DomainAlreadyExistsException.class);
 
-      Mockito.verify(persistDomainPort, Mockito.times(1)).persistDomain(Mockito.any());
+      Mockito.verify(domainPort, Mockito.times(1)).persistDomain(Mockito.any());
     }
 
     @Test
@@ -65,13 +59,13 @@ class DomainServiceTest {
       final var domainName = DomainName.of("example.com");
 
       Mockito.when(authorizationPort.isAdminUser()).thenReturn(Mono.just(true));
-      Mockito.when(persistDomainPort.persistDomain(Mockito.any())).thenReturn(Mono.just(new Domain(domainName)));
+      Mockito.when(domainPort.persistDomain(Mockito.any())).thenReturn(Mono.just(new Domain(domainName)));
 
       StepVerifier.create(service.registerDomain(domainName))
           .assertNext(domain -> Assertions.assertEquals(domainName, domain.domainName()))
           .verifyComplete();
 
-      Mockito.verify(persistDomainPort, Mockito.times(1)).persistDomain(Mockito.any());
+      Mockito.verify(domainPort, Mockito.times(1)).persistDomain(Mockito.any());
     }
   }
 }

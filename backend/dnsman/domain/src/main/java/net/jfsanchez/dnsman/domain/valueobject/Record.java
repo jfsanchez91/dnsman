@@ -11,7 +11,7 @@ public record Record(
     validate();
   }
 
-  public void validate() {
+  private void validate() {
     // TODO: validate A records to be valid IPv4 addresses
     // TODO: validate AAAA records to be valid IPv6 addresses
   }

@@ -3,17 +3,9 @@ package net.jfsanchez.dnsman.application.service;
 import jakarta.inject.Singleton;
 import java.util.function.Supplier;
 import net.jfsanchez.dnsman.application.error.UnauthorizedException;
-import net.jfsanchez.dnsman.application.port.input.AddDomainRecordUseCase;
-import net.jfsanchez.dnsman.application.port.input.GetDomain;
-import net.jfsanchez.dnsman.application.port.input.ListDomainsUseCase;
-import net.jfsanchez.dnsman.application.port.input.RegisterDomainUseCase;
-import net.jfsanchez.dnsman.application.port.input.RemoveDomainRecordUseCase;
-import net.jfsanchez.dnsman.application.port.input.RemoveDomainUseCase;
+import net.jfsanchez.dnsman.application.port.input.DomainUseCase;
 import net.jfsanchez.dnsman.application.port.output.AuthorizationPort;
-import net.jfsanchez.dnsman.application.port.output.GetDomainPort;
-import net.jfsanchez.dnsman.application.port.output.GetDomainsPort;
-import net.jfsanchez.dnsman.application.port.output.PersistDomainPort;
-import net.jfsanchez.dnsman.application.port.output.RemoveDomainPort;
+import net.jfsanchez.dnsman.application.port.output.DomainPort;
 import net.jfsanchez.dnsman.domain.entity.Domain;
 import net.jfsanchez.dnsman.domain.error.DomainAlreadyExistsException;
 import net.jfsanchez.dnsman.domain.error.DomainDoesNotExistsException;
@@ -25,74 +17,77 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DomainService implements RegisterDomainUseCase, GetDomain, RemoveDomainUseCase, ListDomainsUseCase, AddDomainRecordUseCase,
-    RemoveDomainRecordUseCase {
-  private final GetDomainPort getDomainPort;
-  private final GetDomainsPort getDomainsPort;
-  private final PersistDomainPort persistDomainPort;
-  private final RemoveDomainPort removeDomainPort;
+public class DomainService implements DomainUseCase {
+  private final DomainPort domainPort;
   private final AuthorizationPort authorizationPort;
 
-  public DomainService(
-      GetDomainPort getDomainPort,
-      GetDomainsPort getDomainsPort,
-      PersistDomainPort persistDomainPort,
-      RemoveDomainPort removeDomainPort,
-      AuthorizationPort authorizationPort
-  ) {
-    this.getDomainPort = getDomainPort;
-    this.getDomainsPort = getDomainsPort;
-    this.persistDomainPort = persistDomainPort;
-    this.removeDomainPort = removeDomainPort;
+  public DomainService(DomainPort domainPort, AuthorizationPort authorizationPort) {
+    this.domainPort = domainPort;
     this.authorizationPort = authorizationPort;
   }
 
   @Override
   public Mono<Domain> registerDomain(DomainName domainName) throws DomainAlreadyExistsException, UnauthorizedException {
-    return isAdminUser(() -> persistDomainPort.persistDomain(new Domain(domainName)));
+    return isAdminUser(() -> domainPort.persistDomain(new Domain(domainName)));
   }
 
   @Override
   public Mono<Domain> getDomainByName(DomainName domainName) throws DomainDoesNotExistsException {
-    return getDomainPort.getDomainByName(domainName);
+    return domainPort.getDomainByName(domainName);
   }
 
   @Override
   public Mono<Domain> getDomainById(Long domainId) throws DomainDoesNotExistsException {
-    return getDomainPort.getDomainById(domainId);
+    return domainPort.getDomainById(domainId);
   }
 
   @Override
   public Flux<Domain> listDomains() {
-    return getDomainsPort.getDomains();
+    return domainPort.listDomains();
   }
 
   @Override
   public Mono<Domain> removeDomainByName(DomainName domainName) throws DomainDoesNotExistsException, UnauthorizedException {
-    return isAdminUser(() -> getDomainPort.getDomainByName(domainName)
-        .flatMap(removeDomainPort::removeDomain)
+    return isAdminUser(() -> domainPort.getDomainByName(domainName)
+        .flatMap(domainPort::removeDomain)
     );
   }
 
   @Override
   public Mono<Domain> removeDomainById(Long domainId) throws DomainDoesNotExistsException, UnauthorizedException {
-    return isAdminUser(() -> getDomainPort.getDomainById(domainId)
-        .flatMap(removeDomainPort::removeDomain)
+    return isAdminUser(() -> domainPort.getDomainById(domainId)
+        .flatMap(domainPort::removeDomain)
     );
   }
 
   @Override
   public Mono<Domain> addDomainRecord(DomainName domainName, Type recordType, String recordValue) throws RecordAlreadyExistsException, UnauthorizedException {
-    return isAdminUser(() -> getDomainPort.getDomainByName(domainName)
+    return isAdminUser(() -> domainPort.getDomainByName(domainName)
         .map(domain -> domain.addRecord(recordType, recordValue))
-        .flatMap(persistDomainPort::persistDomain)
+        .flatMap(domainPort::persistDomain)
     );
   }
 
   @Override
-  public Mono<Domain> removeDnsRecord(DomainName domainName, Type type, String recordValue)
+  public Mono<Domain> addDomainRecord(Long domainid, Type recordType, String recordValue) throws RecordAlreadyExistsException, UnauthorizedException {
+    return isAdminUser(() -> domainPort.getDomainById(domainid)
+        .map(domain -> domain.addRecord(recordType, recordValue))
+        .flatMap(domainPort::persistDomain)
+    );
+  }
+
+  @Override
+  public Mono<Domain> removeDomainRecord(DomainName domainName, Type type, String recordValue)
       throws DomainDoesNotExistsException, RecordDoesNotExistsException, UnauthorizedException {
-    return isAdminUser(() -> getDomainPort.getDomainByName(domainName)
+    return isAdminUser(() -> domainPort.getDomainByName(domainName)
+        .map(domain -> domain.removeRecord(type, recordValue))
+    );
+  }
+
+  @Override
+  public Mono<Domain> removeDomainRecord(Long domainId, Type type, String recordValue)
+      throws DomainDoesNotExistsException, RecordDoesNotExistsException, UnauthorizedException {
+    return isAdminUser(() -> domainPort.getDomainById(domainId)
         .map(domain -> domain.removeRecord(type, recordValue))
     );
   }

@@ -3,6 +3,7 @@ package net.jfsanchez.dnsman.domain.entity;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import lombok.Builder;
 import net.jfsanchez.dnsman.domain.error.InvalidDomainNameException;
 import net.jfsanchez.dnsman.domain.error.RecordAlreadyExistsException;
 import net.jfsanchez.dnsman.domain.error.RecordDoesNotExistsException;
@@ -10,6 +11,7 @@ import net.jfsanchez.dnsman.domain.valueobject.DomainName;
 import net.jfsanchez.dnsman.domain.valueobject.Record;
 import net.jfsanchez.dnsman.domain.valueobject.Type;
 
+@Builder(toBuilder = true)
 public record Domain(
     Long id,
     DomainName domainName,
