@@ -34,11 +34,12 @@ public class DnsServer {
           .handler(new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) throws Exception {
-              log.info("Initializing DNS Server channel.");
+              log.debug("Initializing DNS Server channel.");
               ch.pipeline()
                   .addLast(new DatagramDnsQueryDecoder())
                   .addLast(new DatagramDnsResponseEncoder())
                   .addLast(dnsQueryResolver);
+              log.info("DNS Server Running (port={})", port);
             }
           });
       final var future = bootstrap.bind(port).sync();
