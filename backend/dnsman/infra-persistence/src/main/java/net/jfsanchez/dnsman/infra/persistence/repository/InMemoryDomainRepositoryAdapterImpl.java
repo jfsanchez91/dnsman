@@ -1,9 +1,11 @@
 package net.jfsanchez.dnsman.infra.persistence.repository;
 
+import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 import net.jfsanchez.dnsman.application.port.output.DomainPort;
 import net.jfsanchez.dnsman.domain.entity.Domain;
 import net.jfsanchez.dnsman.domain.error.DomainAlreadyExistsException;
@@ -20,16 +22,22 @@ public class InMemoryDomainRepositoryAdapterImpl implements DomainPort {
 
   @Override
   public Mono<Domain> getDomainById(Long domainId) throws DomainDoesNotExistsException {
-    return Mono.just(DOMAINS_BY_ID.get(domainId))
-        .switchIfEmpty(Mono.error(new DomainDoesNotExistsException(domainId)))
-        ;
+    return nullableMono(DOMAINS_BY_ID.get(domainId), () -> new DomainDoesNotExistsException(domainId));
   }
 
   @Override
   public Mono<Domain> getDomainByName(DomainName domainName) throws DomainDoesNotExistsException {
-    return Mono.just(DOMAINS_BY_NAME.get(domainName.value()))
-        .switchIfEmpty(Mono.error(new DomainDoesNotExistsException(domainName)))
-        ;
+    return nullableMono(DOMAINS_BY_NAME.get(domainName.value()), () -> new DomainDoesNotExistsException(domainName));
+  }
+
+  private static <T> Mono<T> nullableMono(@Nullable T value, Supplier<Throwable> error) {
+    return Mono.create(sink -> {
+      if (value == null) {
+        sink.error(error.get());
+      } else {
+        sink.success(value);
+      }
+    });
   }
 
   @Override

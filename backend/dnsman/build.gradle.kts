@@ -44,6 +44,7 @@ dependencies {
     runtimeOnly("org.yaml:snakeyaml")
     implementation(project(":application"))
     implementation(project(":infra-web"))
+    implementation(project(":infra-dns"))
     implementation(project(":infra-persistence"))
 }
 

@@ -3,6 +3,7 @@ package net.jfsanchez.dnsman.domain.entity;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import net.jfsanchez.dnsman.domain.error.InvalidDomainNameException;
 import net.jfsanchez.dnsman.domain.error.RecordAlreadyExistsException;
@@ -59,5 +60,9 @@ public record Domain(
       throw new RecordDoesNotExistsException(this.domainName, type, value);
     }
     return this;
+  }
+
+  public Set<Record> getRecordsByType(Type type) {
+    return records.stream().filter(record -> record.type().equals(type)).collect(Collectors.toSet());
   }
 }
