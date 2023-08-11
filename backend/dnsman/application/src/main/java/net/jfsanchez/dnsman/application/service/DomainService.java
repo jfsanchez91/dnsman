@@ -6,6 +6,7 @@ import net.jfsanchez.dnsman.application.error.UnauthorizedException;
 import net.jfsanchez.dnsman.application.port.input.DomainUseCase;
 import net.jfsanchez.dnsman.application.port.output.AuthorizationPort;
 import net.jfsanchez.dnsman.application.port.output.DomainPort;
+import net.jfsanchez.dnsman.application.port.output.TransactionManagementPort;
 import net.jfsanchez.dnsman.domain.entity.Domain;
 import net.jfsanchez.dnsman.domain.error.DomainAlreadyExistsException;
 import net.jfsanchez.dnsman.domain.error.DomainDoesNotExistsException;
@@ -19,16 +20,18 @@ import reactor.core.publisher.Mono;
 @Singleton
 public class DomainService implements DomainUseCase {
   private final DomainPort domainPort;
+  private final TransactionManagementPort transactionManagementPort;
   private final AuthorizationPort authorizationPort;
 
-  public DomainService(DomainPort domainPort, AuthorizationPort authorizationPort) {
+  public DomainService(DomainPort domainPort, TransactionManagementPort transactionManagementPort, AuthorizationPort authorizationPort) {
     this.domainPort = domainPort;
+    this.transactionManagementPort = transactionManagementPort;
     this.authorizationPort = authorizationPort;
   }
 
   @Override
   public Mono<Domain> registerDomain(DomainName domainName) throws DomainAlreadyExistsException, UnauthorizedException {
-    return isAdminUser(() -> domainPort.persistDomain(new Domain(domainName)));
+    return isAdminUser(() -> withTransaction(() -> domainPort.persistDomain(new Domain(domainName))));
   }
 
   @Override
@@ -102,5 +105,9 @@ public class DomainService implements DomainUseCase {
           }
         })
         ;
+  }
+
+  private <T> T withTransaction(Supplier<T> supplier) {
+    return transactionManagementPort.withTransaction(supplier);
   }
 }

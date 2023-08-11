@@ -1,8 +1,10 @@
 package net.jfsanchez.dnsman.application.service;
 
+import java.util.function.Supplier;
 import net.jfsanchez.dnsman.application.error.UnauthorizedException;
 import net.jfsanchez.dnsman.application.port.output.AuthorizationPort;
 import net.jfsanchez.dnsman.application.port.output.DomainPort;
+import net.jfsanchez.dnsman.application.port.output.TransactionManagementPort;
 import net.jfsanchez.dnsman.application.util.MockitoUtil;
 import net.jfsanchez.dnsman.domain.entity.Domain;
 import net.jfsanchez.dnsman.domain.error.DomainAlreadyExistsException;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -19,11 +22,20 @@ import reactor.test.StepVerifier;
 class DomainServiceTest {
   private final DomainPort domainPort = Mockito.mock(DomainPort.class);
   private final AuthorizationPort authorizationPort = Mockito.mock(AuthorizationPort.class);
-  private final DomainService service = new DomainService(domainPort, authorizationPort);
+  private final TransactionManagementPort transactionManagementPort = Mockito.mock(TransactionManagementPort.class);
+  private final DomainService service = new DomainService(domainPort, transactionManagementPort, authorizationPort);
 
   @BeforeEach
   void setup() {
     MockitoUtil.resetAll(this);
+    stubTransactionManagementPort();
+  }
+
+  void stubTransactionManagementPort() {
+    Mockito.when(transactionManagementPort.withTransaction(Mockito.any(Supplier.class))).thenAnswer(invocation -> {
+      final var supplier = invocation.getArgument(0, Supplier.class);
+      return supplier.get();
+    });
   }
 
   @Nested
