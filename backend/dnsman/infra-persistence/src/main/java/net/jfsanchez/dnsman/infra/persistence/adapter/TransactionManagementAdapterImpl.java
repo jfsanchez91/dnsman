@@ -16,12 +16,16 @@ class TransactionManagementAdapterImpl implements TransactionManagementPort {
   @Override
   public <T> T withTransaction(Supplier<T> supplier) {
     acquire();
-    return supplier.get();
+    final var result = supplier.get();
+    release();
+    return result;
   }
 
   @Override
   public <T> void withTransaction(Runnable runnable) {
-
+    acquire();
+    runnable.run();
+    release();
   }
 
   private void acquire() {
