@@ -42,7 +42,7 @@ public class DnsServer {
               log.info("DNS Server Running (port={})", port);
             }
           });
-      final var future = bootstrap.bind(port).sync();
+      final var future = bootstrap.bind("0.0.0.0", port).sync();
       serverChannel = future.channel();
       serverChannel.closeFuture().sync();
     } catch (InterruptedException e) {
@@ -55,11 +55,7 @@ public class DnsServer {
   public void stop() {
     if (serverChannel != null) {
       log.info("Stopping DNS server gracefully");
-      try {
-        serverChannel.closeFuture().sync();
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
+      serverChannel.close().syncUninterruptibly();
     }
   }
 }
