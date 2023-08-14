@@ -1,8 +1,5 @@
 package de.porsche.ho.chargepoint.infra.dns.service.dto;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.UnknownHostException;
 import net.jfsanchez.dnsman.domain.util.IpUtil;
 import net.jfsanchez.dnsman.domain.valueobject.Record;
 
