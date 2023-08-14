@@ -7,6 +7,7 @@ import lombok.Builder;
 @Serdeable.Deserializable
 public record AddDomainRecordDto(
     RecordType type,
-    String value
+    String value,
+    Long ttl
 ) {
 }

@@ -64,17 +64,17 @@ public class DomainService implements DomainUseCase {
   }
 
   @Override
-  public Mono<Domain> addDomainRecord(DomainName domainName, Type recordType, String recordValue) throws RecordAlreadyExistsException, UnauthorizedException {
+  public Mono<Domain> addDomainRecord(DomainName domainName, Type recordType, String recordValue, Long ttl) throws RecordAlreadyExistsException, UnauthorizedException {
     return isAdminUser(() -> domainPort.getDomainByName(domainName)
-        .map(domain -> domain.addRecord(recordType, recordValue))
+        .map(domain -> domain.addRecord(recordType, recordValue, ttl))
         .flatMap(domainPort::persistDomain)
     );
   }
 
   @Override
-  public Mono<Domain> addDomainRecord(Long domainid, Type recordType, String recordValue) throws RecordAlreadyExistsException, UnauthorizedException {
-    return isAdminUser(() -> domainPort.getDomainById(domainid)
-        .map(domain -> domain.addRecord(recordType, recordValue))
+  public Mono<Domain> addDomainRecord(Long domainId, Type recordType, String recordValue, Long ttl) throws RecordAlreadyExistsException, UnauthorizedException {
+    return isAdminUser(() -> domainPort.getDomainById(domainId)
+        .map(domain -> domain.addRecord(recordType, recordValue, ttl))
         .flatMap(domainPort::persistDomain)
     );
   }

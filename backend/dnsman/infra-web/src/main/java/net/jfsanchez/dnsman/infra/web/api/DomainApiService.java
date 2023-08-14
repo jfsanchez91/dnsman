@@ -31,7 +31,7 @@ public class DomainApiService {
   }
 
   public Mono<DomainDto> addDomainRecord(Long domainId, AddDomainRecordDto dto) {
-    return domainService.addDomainRecord(domainId, Type.valueOf(dto.type().name()), dto.value())
+    return domainService.addDomainRecord(domainId, Type.valueOf(dto.type().name()), dto.value(), dto.ttl())
         .map(DomainDto::fromDomain)
         ;
   }

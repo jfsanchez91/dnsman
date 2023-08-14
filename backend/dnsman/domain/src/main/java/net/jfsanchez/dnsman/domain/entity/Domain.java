@@ -46,8 +46,8 @@ public record Domain(
   private void validate() {
   }
 
-  public Domain addRecord(Type type, String value) throws RecordAlreadyExistsException {
-    final var record = new Record(type, value);
+  public Domain addRecord(Type type, String value, Long ttl) throws RecordAlreadyExistsException {
+    final var record = new Record(type, value, ttl);
     if (!records.add(record)) {
       throw new RecordAlreadyExistsException(this.domainName, type, value);
     }

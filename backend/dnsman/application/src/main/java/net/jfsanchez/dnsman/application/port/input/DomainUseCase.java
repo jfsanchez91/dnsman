@@ -24,13 +24,14 @@ public interface DomainUseCase {
 
   Flux<Domain> listDomains();
 
-  Mono<Domain> addDomainRecord(DomainName domainName, Type recordType, String recordValue)
+  Mono<Domain> addDomainRecord(DomainName domainName, Type recordType, String recordValue, Long ttl)
       throws RecordAlreadyExistsException, UnauthorizedException;
 
-  Mono<Domain> addDomainRecord(Long domainId, Type recordType, String recordValue)
+  Mono<Domain> addDomainRecord(Long domainId, Type recordType, String recordValue, Long ttl)
       throws RecordAlreadyExistsException, UnauthorizedException;
 
-  Mono<Domain> removeDomainRecord(DomainName domainName, Type type, String recordValue) throws DomainDoesNotExistsException, RecordDoesNotExistsException,
+  Mono<Domain> removeDomainRecord(DomainName domainName, Type type, String recordValue)
+      throws DomainDoesNotExistsException, RecordDoesNotExistsException,
       UnauthorizedException;
 
   Mono<Domain> removeDomainRecord(Long domainId, Type type, String recordValue) throws DomainDoesNotExistsException, RecordDoesNotExistsException,
