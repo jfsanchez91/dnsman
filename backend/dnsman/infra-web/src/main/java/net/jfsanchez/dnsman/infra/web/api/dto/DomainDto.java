@@ -17,7 +17,7 @@ public record DomainDto(
     return DomainDto.builder()
         .id(entity.id())
         .domainName(entity.domainName().value())
-        .records(entity.records().stream().map(record -> "%s %s".formatted(record.type().name(), record.value())).collect(Collectors.toSet()))
+        .records(entity.records().stream().map(record -> "%s %s %s".formatted(record.type().name(), record.ttl(), record.value())).collect(Collectors.toSet()))
         .build();
   }
 }

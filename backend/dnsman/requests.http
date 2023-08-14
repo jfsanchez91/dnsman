@@ -1,0 +1,17 @@
+### Register domain example.com
+POST http://localhost:8080/api/domain/
+Content-Type: application/json
+
+{
+  "domainName": "example.com"
+}
+
+### Register A record
+POST http://localhost:8080/api/domain/0/
+Content-Type: application/json
+
+{
+  "type": "A",
+  "value": "93.184.216.34",
+  "ttl": 10
+}

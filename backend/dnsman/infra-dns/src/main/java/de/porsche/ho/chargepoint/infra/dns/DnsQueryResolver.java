@@ -21,16 +21,16 @@ class DnsQueryResolver extends SimpleChannelInboundHandler<DatagramDnsQuery> {
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, DatagramDnsQuery query) {
-    log.debug("New DNS Query received (query={}).", query);
     final var question = query.recordAt(DnsSection.QUESTION);
     final var domainName = question.name();
     final var recordType = question.type();
     final var recordClass = question.dnsClass();
+    log.info("New DNS Query received (question={}).", question);
 
     final var response = new DatagramDnsResponse(query.recipient(), query.sender(), query.id(), DnsOpCode.QUERY);
     response.setRecursionAvailable(false);
 
-    service.resolve(recordType, domainName)
+    service.resolveQuery(recordType, domainName)
         .filter(it -> it.data() != null)
         .map(DnsRecordResponse::data)
         .map(data -> {

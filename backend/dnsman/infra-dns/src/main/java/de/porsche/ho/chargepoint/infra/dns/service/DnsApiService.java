@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 public class DnsApiService {
   private final DomainService domainService;
 
-  public Flux<DnsRecordResponse> resolve(DnsRecordType type, String domainName) {
+  public Flux<DnsRecordResponse> resolveQuery(DnsRecordType type, String domainName) {
     return domainService.getDomainByName(DomainName.of(domainName(domainName)))
         .flatMapIterable(domain -> domain.getRecordsByType(recordType(type)))
         .map(DnsRecordResponse::fromDomain)
