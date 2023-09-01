@@ -1,5 +1,7 @@
 package net.jfsanchez.dnsman.domain.valueobject;
 
+import static net.jfsanchez.dnsman.domain.util.AssertionUtil._assert;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import net.jfsanchez.dnsman.domain.error.InvalidDomainNameException;
@@ -7,6 +9,7 @@ import net.jfsanchez.dnsman.domain.error.InvalidDomainNameException;
 public record DomainName(
     String value
 ) {
+
   public DomainName(String value) {
     this.value = value;
     try {
@@ -21,12 +24,11 @@ public record DomainName(
   }
 
   private void validate() {
-    assert value != null;
-    assert !value.isBlank();
+    _assert(value != null, "Domain name must not be null");
+    _assert(!value.isBlank(), "Domain name must not be blank");
     try {
       final var host = URI.create("https://" + value).toURL().getHost();
-      assert host != null;
-      assert !host.isBlank();
+      _assert(host != null && !host.isBlank(), "Domain name is invalid");
     } catch (MalformedURLException | IllegalArgumentException e) {
       throw new AssertionError();
     }
