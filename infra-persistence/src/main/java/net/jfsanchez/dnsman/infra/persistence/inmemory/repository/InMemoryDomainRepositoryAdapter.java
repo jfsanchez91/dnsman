@@ -1,5 +1,6 @@
-package net.jfsanchez.dnsman.infra.persistence.repository;
+package net.jfsanchez.dnsman.infra.persistence.inmemory.repository;
 
+import io.micronaut.context.annotation.Requires;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
 import java.util.Objects;
@@ -14,8 +15,10 @@ import net.jfsanchez.dnsman.domain.valueobject.DomainName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-//@Singleton
-public class InMemoryDomainRepositoryAdapterImpl implements DomainPort {
+@Singleton
+@Requires(env = "in_memory")
+public class InMemoryDomainRepositoryAdapter implements DomainPort {
+
   private static final ConcurrentHashMap<Long, Domain> DOMAINS_BY_ID = new ConcurrentHashMap<>();
   private static final ConcurrentHashMap<String, Domain> DOMAINS_BY_NAME = new ConcurrentHashMap<>();
   private static final AtomicLong COUNTER = new AtomicLong(0);
@@ -59,7 +62,7 @@ public class InMemoryDomainRepositoryAdapterImpl implements DomainPort {
 
   @Override
   public Mono<Domain> updateDomain(Domain domain) {
-    return null;
+    return persistDomain(domain);
   }
 
   @Override

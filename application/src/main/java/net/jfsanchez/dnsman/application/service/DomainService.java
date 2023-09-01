@@ -14,11 +14,13 @@ import net.jfsanchez.dnsman.domain.error.RecordAlreadyExistsException;
 import net.jfsanchez.dnsman.domain.error.RecordDoesNotExistsException;
 import net.jfsanchez.dnsman.domain.valueobject.DomainName;
 import net.jfsanchez.dnsman.domain.valueobject.Type;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Singleton
 public class DomainService implements DomainUseCase {
+
   private final DomainPort domainPort;
   private final TransactionManagementPort transactionManagementPort;
   private final AuthorizationPort authorizationPort;
@@ -51,7 +53,7 @@ public class DomainService implements DomainUseCase {
 
   @Override
   public Mono<Domain> removeDomainByName(DomainName domainName) throws DomainDoesNotExistsException, UnauthorizedException {
-    return isAdminUser(() -> domainPort.getDomainByName(domainName)
+    return isAdminUser(() -> withTransaction(() -> domainPort.getDomainByName(domainName))
         .flatMap(domainPort::removeDomain)
     );
   }
@@ -64,7 +66,8 @@ public class DomainService implements DomainUseCase {
   }
 
   @Override
-  public Mono<Domain> addDomainRecord(DomainName domainName, Type recordType, String recordValue, Long ttl) throws RecordAlreadyExistsException, UnauthorizedException {
+  public Mono<Domain> addDomainRecord(DomainName domainName, Type recordType, String recordValue, Long ttl)
+      throws RecordAlreadyExistsException, UnauthorizedException {
     return isAdminUser(() -> domainPort.getDomainByName(domainName)
         .map(domain -> domain.addRecord(recordType, recordValue, ttl))
         .flatMap(domainPort::updateDomain)
@@ -72,7 +75,8 @@ public class DomainService implements DomainUseCase {
   }
 
   @Override
-  public Mono<Domain> addDomainRecord(Long domainId, Type recordType, String recordValue, Long ttl) throws RecordAlreadyExistsException, UnauthorizedException {
+  public Mono<Domain> addDomainRecord(Long domainId, Type recordType, String recordValue, Long ttl)
+      throws RecordAlreadyExistsException, UnauthorizedException {
     return isAdminUser(() -> domainPort.getDomainById(domainId)
         .map(domain -> domain.addRecord(recordType, recordValue, ttl))
         .flatMap(domainPort::updateDomain)
@@ -97,11 +101,11 @@ public class DomainService implements DomainUseCase {
     );
   }
 
-  private <T> Mono<T> isAdminUser(Supplier<Mono<T>> supplier) {
+  private <T> Mono<T> isAdminUser(Supplier<Publisher<T>> supplier) {
     return authorizationPort.isAdminUser()
         .flatMap(isAdminUser -> {
           if (isAdminUser) {
-            return supplier.get();
+            return Mono.from(supplier.get());
           } else {
             return Mono.error(new UnauthorizedException());
           }
@@ -109,7 +113,7 @@ public class DomainService implements DomainUseCase {
         ;
   }
 
-  private <T> T withTransaction(Supplier<T> supplier) {
+  private <T> Mono<T> withTransaction(Supplier<Mono<T>> supplier) {
     return transactionManagementPort.withTransaction(supplier);
   }
 }

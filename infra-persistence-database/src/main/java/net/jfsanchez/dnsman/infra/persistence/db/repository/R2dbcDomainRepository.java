@@ -1,5 +1,6 @@
 package net.jfsanchez.dnsman.infra.persistence.db.repository;
 
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.data.annotation.Join;
 import io.micronaut.data.annotation.Join.Type;
@@ -10,6 +11,7 @@ import net.jfsanchez.dnsman.infra.persistence.db.entity.DomainEntity;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Requires(notEnv = "in_memory")
 @R2dbcRepository(dialect = Dialect.POSTGRES)
 interface R2dbcDomainRepository extends ReactorCrudRepository<DomainEntity, Long> {
 

@@ -1,5 +1,6 @@
 package net.jfsanchez.dnsman.infra.persistence.db.repository;
 
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.data.annotation.Join;
 import io.r2dbc.spi.R2dbcException;
 import jakarta.inject.Singleton;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Singleton
 @RequiredArgsConstructor
+@Requires(bean = R2dbcDomainRepository.class)
 class R2dbcDomainRepositoryAdapter implements DomainPort {
 
   private static final int DUPLICATED_KEY_ERROR_CODE = 23505;
