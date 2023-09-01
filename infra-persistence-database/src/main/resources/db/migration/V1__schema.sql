@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS record
     domain_id             BIGINT NOT NULL REFERENCES domain ON DELETE CASCADE,
     value                 VARCHAR(255),
     type                  VARCHAR(255),
-    ttl                   BIGINT,
-    typer                 VARCHAR(20)
+    ttl                   BIGINT
 );
 CREATE INDEX IF NOT EXISTS record_domain_id_index ON record (domain_id);

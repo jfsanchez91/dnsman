@@ -10,9 +10,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
 import jakarta.validation.constraints.NotBlank;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -40,9 +38,8 @@ public class DomainEntity {
 
   @Column
   @Nullable
-  @OneToMany(mappedBy = "domain", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-  @OrderBy("ttl desc")
-  private Set<RecordEntity> records = new HashSet<>();
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<RecordEntity> records;
 
   public Domain toDomain() {
     final Set<Record> records;
