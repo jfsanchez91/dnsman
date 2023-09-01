@@ -1,5 +1,7 @@
 package net.jfsanchez.dnsman.domain.valueobject;
 
+import static net.jfsanchez.dnsman.domain.util.AssertionUtil._assert;
+
 import lombok.Builder;
 import net.jfsanchez.dnsman.domain.error.InvalidRecordException;
 import net.jfsanchez.dnsman.domain.util.IpUtil;
@@ -26,16 +28,16 @@ public record Record(
   }
 
   private void validate() {
-    assert value != null;
-    assert !value.isBlank();
-    assert ttl != null;
-    assert ttl >= 0; // zero means no-cache
+    _assert(value != null, "Record value can't be null");
+    _assert(!value.isBlank(), "Record value can't be empty");
+    _assert(ttl != null, "Record TTL can't be null");
+    _assert(ttl >= 0, "Record TTL must be greater or equal to zero"); // zero means no-cache
     switch (type) {
       case A -> {
-        assert isValidIpv4(value);
+        _assert(isValidIpv4(value), "A records must be a valid IPv4 address");
       }
       case AAAA -> {
-        assert isValidIpv6(value);
+        _assert(isValidIpv6(value), "AAAA records must be a valid IPv6 address");
       }
       case CNAME -> DomainName.of(value);
     }

@@ -49,6 +49,11 @@ class R2dbcDomainRepositoryAdapter implements DomainPort {
   }
 
   @Override
+  public Mono<Domain> updateDomain(Domain domain) {
+    return repository.update(DomainEntity.from(domain)).map(DomainEntity::toDomain);
+  }
+
+  @Override
   public Mono<Domain> removeDomain(Domain domain) {
     return repository.deleteById(domain.id()).thenReturn(domain);
   }

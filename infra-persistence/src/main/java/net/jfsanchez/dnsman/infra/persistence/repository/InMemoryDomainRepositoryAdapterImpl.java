@@ -58,6 +58,11 @@ public class InMemoryDomainRepositoryAdapterImpl implements DomainPort {
   }
 
   @Override
+  public Mono<Domain> updateDomain(Domain domain) {
+    return null;
+  }
+
+  @Override
   public Mono<Domain> removeDomain(Domain domain) {
     DOMAINS_BY_ID.remove(domain.id());
     DOMAINS_BY_NAME.remove(domain.domainName().value());

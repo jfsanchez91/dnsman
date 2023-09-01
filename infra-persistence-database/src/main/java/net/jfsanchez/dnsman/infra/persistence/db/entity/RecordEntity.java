@@ -7,15 +7,20 @@ import io.micronaut.serde.annotation.Serdeable;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import net.jfsanchez.dnsman.domain.valueobject.Record;
 import net.jfsanchez.dnsman.domain.valueobject.Type;
 
 
-@Data
+@Setter
+@Getter
 @Builder
 @Serdeable
 @MappedEntity("record")
@@ -35,6 +40,11 @@ public class RecordEntity {
 
   @Enumerated(EnumType.STRING)
   private Type type;
+
+  @OneToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "domain_id", referencedColumnName = "id")
+  private DomainEntity domain;
+
 
   public Record toDomain() {
     return Record.builder()

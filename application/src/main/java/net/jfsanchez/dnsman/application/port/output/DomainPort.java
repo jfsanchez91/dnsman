@@ -14,6 +14,7 @@ public interface DomainPort {
   Flux<Domain> listDomains();
 
   Mono<Domain> persistDomain(Domain domain);
+  Mono<Domain> updateDomain(Domain domain);
 
   Mono<Domain> removeDomain(Domain domain);
 }

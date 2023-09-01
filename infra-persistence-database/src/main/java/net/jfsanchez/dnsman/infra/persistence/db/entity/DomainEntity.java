@@ -16,13 +16,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import net.jfsanchez.dnsman.domain.entity.Domain;
 import net.jfsanchez.dnsman.domain.valueobject.DomainName;
 import net.jfsanchez.dnsman.domain.valueobject.Record;
 
 
-@Data
+@Setter
+@Getter
 @Builder
 @Serdeable
 @MappedEntity("domain")
@@ -57,16 +59,21 @@ public class DomainEntity {
   }
 
   public static DomainEntity from(Domain domain) {
+    final var entity = DomainEntity.builder()
+        .id(domain.id())
+        .name(domain.domainName().value())
+        .build();
     final Set<RecordEntity> records;
     if (CollectionUtils.isEmpty(domain.records())) {
       records = null;
     } else {
-      records = domain.records().stream().map(RecordEntity::from).collect(Collectors.toSet());
+      records = domain.records().stream().map(it -> {
+        final var record = RecordEntity.from(it);
+        record.setDomain(entity);
+        return record;
+      }).collect(Collectors.toSet());
     }
-    return DomainEntity.builder()
-        .id(domain.id())
-        .name(domain.domainName().value())
-        .records(records)
-        .build();
+    entity.setRecords(records);
+    return entity;
   }
 }
