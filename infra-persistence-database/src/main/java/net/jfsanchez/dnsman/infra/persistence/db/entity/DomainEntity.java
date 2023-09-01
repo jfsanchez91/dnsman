@@ -4,12 +4,11 @@ import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.data.annotation.GeneratedValue;
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
+import io.micronaut.data.annotation.Relation;
+import io.micronaut.data.annotation.Relation.Cascade;
+import io.micronaut.data.annotation.Relation.Kind;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.annotation.Nullable;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,13 +31,11 @@ public class DomainEntity {
   @GeneratedValue(GeneratedValue.Type.AUTO)
   private Long id;
 
-  @Column
   @NotBlank
   private String name;
 
-  @Column
   @Nullable
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+  @Relation(value = Kind.ONE_TO_MANY, mappedBy = "domain", cascade = Cascade.ALL)
   private Set<RecordEntity> records;
 
   public Domain toDomain() {

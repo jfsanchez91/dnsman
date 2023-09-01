@@ -3,16 +3,13 @@ package net.jfsanchez.dnsman.infra.persistence.db.entity;
 import io.micronaut.data.annotation.GeneratedValue;
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
+import io.micronaut.data.annotation.Relation;
+import io.micronaut.data.annotation.Relation.Cascade;
 import io.micronaut.serde.annotation.Serdeable;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -44,9 +41,7 @@ public class RecordEntity {
   @Enumerated(EnumType.STRING)
   private Type type;
 
-  @Nullable
-  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-  @JoinColumn(name = "domain_id", referencedColumnName = "id")
+  @Relation(value = Relation.Kind.MANY_TO_ONE, cascade = Cascade.ALL)
   private DomainEntity domain;
 
 

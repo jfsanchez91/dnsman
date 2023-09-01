@@ -28,7 +28,7 @@ public class DomainController {
   static class Paths {
 
     static final String ROOT_PATH = "/api/domain";
-    static final String ADD_DOMAIN_RECORD = "/{domainId}/";
+    static final String DOMAIN_ID = "/{domainId}/";
   }
 
   private final DomainApiService domainApiService;
@@ -43,11 +43,16 @@ public class DomainController {
     return domainApiService.registerDomain(dto);
   }
 
-  @Post(uri = Paths.ADD_DOMAIN_RECORD, consumes = MediaType.APPLICATION_JSON)
+  @Post(uri = Paths.DOMAIN_ID, consumes = MediaType.APPLICATION_JSON)
   public Mono<DomainDto> addDomainRecord(
       @PathVariable("domainId") Long domainId,
       @Body @Valid AddDomainRecordDto dto
   ) {
     return domainApiService.addDomainRecord(domainId, dto);
+  }
+
+  @Get(uri = Paths.DOMAIN_ID)
+  public Mono<DomainDto> getDomainById(@PathVariable("domainId") Long domainId) {
+    return domainApiService.getDomainById(domainId);
   }
 }
