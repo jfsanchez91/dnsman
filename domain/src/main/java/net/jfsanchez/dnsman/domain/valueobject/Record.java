@@ -3,6 +3,8 @@ package net.jfsanchez.dnsman.domain.valueobject;
 import static net.jfsanchez.dnsman.domain.util.AssertionUtil._assert;
 
 import lombok.Builder;
+import net.jfsanchez.dnsman.domain.error.InvalidIpv4AddressException;
+import net.jfsanchez.dnsman.domain.error.InvalidIpv6AddressException;
 import net.jfsanchez.dnsman.domain.error.InvalidRecordException;
 import net.jfsanchez.dnsman.domain.util.IpUtil;
 
@@ -12,6 +14,7 @@ public record Record(
     String value,
     Long ttl
 ) {
+
   public Record(Type type, String value) {
     this(type, value, 0L);
   }
@@ -33,22 +36,26 @@ public record Record(
     _assert(ttl != null, "Record TTL can't be null");
     _assert(ttl >= 0, "Record TTL must be greater or equal to zero"); // zero means no-cache
     switch (type) {
-      case A -> {
-        _assert(isValidIpv4(value), "A records must be a valid IPv4 address");
-      }
-      case AAAA -> {
-        _assert(isValidIpv6(value), "AAAA records must be a valid IPv6 address");
-      }
+      case A -> _assert(isValidIpv4(value), "A records must be a valid IPv4 address");
+      case AAAA -> _assert(isValidIpv6(value), "AAAA records must be a valid IPv6 address");
       case CNAME -> DomainName.of(value);
     }
     // TODO: Validate MX records
   }
 
   private boolean isValidIpv4(String value) {
-    return IpUtil.ipv4(value).length == 4;
+    try {
+      return IpUtil.ipv4(value).length == 4;
+    } catch (InvalidIpv4AddressException e) {
+      return false;
+    }
   }
 
   private boolean isValidIpv6(String value) {
-    return IpUtil.ipv6(value).length == 6;
+    try {
+      return IpUtil.ipv6(value).length == 6;
+    } catch (InvalidIpv6AddressException e) {
+      return false;
+    }
   }
 }
