@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+  pg-0:
+    image: docker.io/bitnami/postgresql-repmgr:14
+    ports:
+      - "5432"
+    volumes:
+      - pg_0_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
+      - REPMGR_PRIMARY_HOST=pg-0
+      - REPMGR_PARTNER_NODES=pg-1,pg-0
+      - REPMGR_NODE_NAME=pg-0
+      - REPMGR_NODE_NETWORK_NAME=pg-0
+      - REPMGR_USERNAME=${POSTGRES_USER}
+      - REPMGR_PASSWORD=${POSTGRES_PASSWORD}
+  pg-1:
+    image: docker.io/bitnami/postgresql-repmgr:14
+    ports:
+      - "5432"
+    volumes:
+      - pg_1_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
+      - REPMGR_PRIMARY_HOST=pg-0
+      - REPMGR_PARTNER_NODES=pg-0,pg-1
+      - REPMGR_NODE_NAME=pg-1
+      - REPMGR_NODE_NETWORK_NAME=pg-1
+      - REPMGR_USERNAME=${POSTGRES_USER}
+      - REPMGR_PASSWORD=${POSTGRES_PASSWORD}
+  pgpool:
+    image: docker.io/bitnami/pgpool:4
+    ports:
+      - "5432:5432"
+    environment:
+      - PGPOOL_BACKEND_NODES=0:pg-0:5432,1:pg-1:5432
+      - PGPOOL_SR_CHECK_USER=${POSTGRES_USER}
+      - PGPOOL_SR_CHECK_PASSWORD=${POSTGRES_PASSWORD}
+      - PGPOOL_ENABLE_LDAP=no
+      - PGPOOL_POSTGRES_USERNAME=${POSTGRES_USER}
+      - PGPOOL_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGPOOL_ADMIN_USERNAME=admin
+      - PGPOOL_ADMIN_PASSWORD=${POSTGRES_PASSWORD}
+      - PGPOOL_ENABLE_LOAD_BALANCING=yes
+      - PGPOOL_POSTGRES_CUSTOM_USERS=${POSTGRES_USER}
+      - PGPOOL_POSTGRES_CUSTOM_PASSWORDS=${POSTGRES_USER}
+    healthcheck:
+      test: [ "CMD", "/opt/bitnami/scripts/pgpool/healthcheck.sh" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dnsman:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DATASOURCES_DEFAULT_URL=jdbc:postgresql://pgpool:5432/${POSTGRES_DB}
+      - DATASOURCES_DEFAULT_USERNAME=${POSTGRES_USER}
+      - DATASOURCES_DEFAULT_PASSWORD=${POSTGRES_PASSWORD}
+      - R2DBC_DATASOURCES_DEFAULT_URL=r2dbc:postgresql://pgpool:5432/${POSTGRES_DB}
+      - R2DBC_DATASOURCES_DEFAULT_USERNAME=${POSTGRES_USER}
+      - R2DBC_DATASOURCES_DEFAULT_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080/tcp"
+      - "1053:1053/udp"
+    depends_on:
+      pgpool:
+        condition: service_healthy
+volumes:
+  pg_0_data:
+    driver: local
+  pg_1_data:
+    driver: local
