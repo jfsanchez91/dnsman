@@ -16,11 +16,14 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - DATASOURCES_DEFAULT_URL=jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+      - DATASOURCES_DEFAULT_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       - DATASOURCES_DEFAULT_USERNAME=${POSTGRES_USER}
       - DATASOURCES_DEFAULT_PASSWORD=${POSTGRES_PASSWORD}
-      - R2DBC_DATASOURCES_DEFAULT_URL=r2dbc:postgresql://localhost:5432/${POSTGRES_DB}
+      - R2DBC_DATASOURCES_DEFAULT_URL=r2dbc:postgresql://postgres:5432/${POSTGRES_DB}
       - R2DBC_DATASOURCES_DEFAULT_USERNAME=${POSTGRES_USER}
       - R2DBC_DATASOURCES_DEFAULT_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080/tcp"
+      - "1053:1053/udp"
     depends_on:
       - postgres

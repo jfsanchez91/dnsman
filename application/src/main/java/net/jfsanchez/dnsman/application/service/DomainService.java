@@ -33,7 +33,9 @@ public class DomainService implements DomainUseCase {
 
   @Override
   public Mono<Domain> registerDomain(DomainName domainName) throws DomainAlreadyExistsException, UnauthorizedException {
-    return isAdminUser(() -> withTransaction(() -> domainPort.persistDomain(new Domain(domainName))));
+    return isAdminUser(() -> withTransaction(
+        () -> domainPort.persistDomain(new Domain(domainName))
+    ));
   }
 
   @Override
@@ -53,52 +55,56 @@ public class DomainService implements DomainUseCase {
 
   @Override
   public Mono<Domain> removeDomainByName(DomainName domainName) throws DomainDoesNotExistsException, UnauthorizedException {
-    return isAdminUser(() -> withTransaction(() -> domainPort.getDomainByName(domainName))
-        .flatMap(domainPort::removeDomain)
-    );
+    return isAdminUser(() -> withTransaction(
+        () -> domainPort.getDomainByName(domainName).flatMap(domainPort::removeDomain)
+    ));
   }
 
   @Override
   public Mono<Domain> removeDomainById(Long domainId) throws DomainDoesNotExistsException, UnauthorizedException {
-    return isAdminUser(() -> domainPort.getDomainById(domainId)
-        .flatMap(domainPort::removeDomain)
-    );
+    return isAdminUser(() -> withTransaction(
+        () -> domainPort.getDomainById(domainId).flatMap(domainPort::removeDomain)
+    ));
   }
 
   @Override
   public Mono<Domain> addDomainRecord(DomainName domainName, Type recordType, String recordValue, Long ttl)
       throws RecordAlreadyExistsException, UnauthorizedException {
-    return isAdminUser(() -> domainPort.getDomainByName(domainName)
-        .map(domain -> domain.addRecord(recordType, recordValue, ttl))
-        .flatMap(domainPort::updateDomain)
-    );
+    return isAdminUser(() -> withTransaction(
+        () -> domainPort.getDomainByName(domainName)
+            .map(domain -> domain.addRecord(recordType, recordValue, ttl))
+            .flatMap(domainPort::updateDomain)
+    ));
   }
 
   @Override
   public Mono<Domain> addDomainRecord(Long domainId, Type recordType, String recordValue, Long ttl)
       throws RecordAlreadyExistsException, UnauthorizedException {
-    return isAdminUser(() -> domainPort.getDomainById(domainId)
-        .map(domain -> domain.addRecord(recordType, recordValue, ttl))
-        .flatMap(domainPort::updateDomain)
-    );
+    return isAdminUser(() -> withTransaction(
+        () -> domainPort.getDomainById(domainId)
+            .map(domain -> domain.addRecord(recordType, recordValue, ttl))
+            .flatMap(domainPort::updateDomain)
+    ));
   }
 
   @Override
   public Mono<Domain> removeDomainRecord(DomainName domainName, Type type, String recordValue)
       throws DomainDoesNotExistsException, RecordDoesNotExistsException, UnauthorizedException {
-    return isAdminUser(() -> domainPort.getDomainByName(domainName)
-        .map(domain -> domain.removeRecord(type, recordValue))
-        .flatMap(domainPort::updateDomain)
-    );
+    return isAdminUser(() -> withTransaction(
+        () -> domainPort.getDomainByName(domainName)
+            .map(domain -> domain.removeRecord(type, recordValue))
+            .flatMap(domainPort::updateDomain)
+    ));
   }
 
   @Override
   public Mono<Domain> removeDomainRecord(Long domainId, Type type, String recordValue)
       throws DomainDoesNotExistsException, RecordDoesNotExistsException, UnauthorizedException {
-    return isAdminUser(() -> domainPort.getDomainById(domainId)
-        .map(domain -> domain.removeRecord(type, recordValue))
-        .flatMap(domainPort::updateDomain)
-    );
+    return isAdminUser(() -> withTransaction(
+        () -> domainPort.getDomainById(domainId)
+            .map(domain -> domain.removeRecord(type, recordValue))
+            .flatMap(domainPort::updateDomain)
+    ));
   }
 
   private <T> Mono<T> isAdminUser(Supplier<Publisher<T>> supplier) {
